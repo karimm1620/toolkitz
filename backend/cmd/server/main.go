@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -38,6 +39,11 @@ func main() {
 
 	api := app.Group("/api")
 
+	// Health check (dipakai healthcheck Docker Compose)
+	api.Get("/health", func(c *fiber.Ctx) error {
+		return c.SendString("ok")
+	})
+
 	// Endpoint Gambar
 	api.Post("/image/resize", imgHandler.Resize)
 
@@ -62,6 +68,12 @@ func main() {
 	// Endpoint Watermark
 	api.Post("/pdf/watermark", pdfHandler.Watermark)
 
-	log.Println("Server berjalan di http://localhost:3000")
-	log.Fatal(app.Listen(":3000"))
+	// Hormati env PORT (di-set di docker-compose.yml), default 3000
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+
+	log.Printf("Server berjalan di port %s", port)
+	log.Fatal(app.Listen(":" + port))
 }

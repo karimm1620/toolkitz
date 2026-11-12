@@ -1,0 +1,10 @@
+# Jangan bawa node_modules/dist dari host ke image: binary native (esbuild, rollup)
+# beda OS/arsitektur dan menimpa hasil `npm install` di dalam container.
+node_modules
+dist
+dist-ssr
+.git
+*.log
+.vscode
+.idea
+.DS_Store
