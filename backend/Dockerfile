@@ -18,11 +18,18 @@ FROM alpine:latest
 # libwebp      : runtime library untuk encoder WEBP (cgo, dynamic link)
 # libreoffice-*: dipakai endpoint /api/convert/* lewat perintah `soffice`.
 #                TANPA ini Word<->PDF selalu gagal (executable not found).
+# libreoffice-calc/impress: Excel & PowerPoint -> PDF
+# ghostscript  : compress PDF sungguhan (gs); tanpa ini dipakai cadangan pdfcpu
+# poppler-utils: pdftoppm untuk PDF -> gambar
 # font-*       : tanpa font, teks hasil konversi jadi kotak/hilang.
 RUN apk add --no-cache \
     libwebp \
+    ghostscript \
+    poppler-utils \
     libreoffice-common \
     libreoffice-writer \
+    libreoffice-calc \
+    libreoffice-impress \
     libreoffice-draw \
     font-liberation \
     ttf-dejavu

@@ -7,6 +7,7 @@ import PdfCompressor from "./components/PdfCompressor";
 import PdfWatermark from "./components/PdfWatermark";
 import DocConverter from "./components/DocConverter";
 import ImageResizer from "./components/ImageResizer";
+import ImagePdfConverter from "./components/ImagePdfConverter";
 
 type ToolId =
   | "home"
@@ -17,6 +18,7 @@ type ToolId =
   | "pdf-compress"
   | "pdf-watermark"
   | "doc-convert"
+  | "image-pdf"
   | "image-resize";
 
 // Data konfigurasi untuk Grid Beranda
@@ -64,7 +66,7 @@ const TOOLS = [
   {
     id: "pdf-compress" as ToolId,
     title: "Kompresi PDF",
-    desc: "Kurangi ukuran file PDF dengan menjaga kualitas terbaik.",
+    desc: "Perkecil ukuran file PDF dengan tiga tingkat kompresi.",
     icon: (
       <svg
         className="w-10 h-10 text-green-500 mb-4"
@@ -84,7 +86,7 @@ const TOOLS = [
   {
     id: "doc-convert" as ToolId,
     title: "Konversi Dokumen",
-    desc: "Ubah format file dari PDF ke Word atau Word ke PDF.",
+    desc: "Ubah Word, Excel, atau PowerPoint ke PDF, atau PDF ke Word.",
     icon: (
       <svg
         className="w-10 h-10 text-blue-500 mb-4"
@@ -157,6 +159,26 @@ const TOOLS = [
           strokeLinecap="round"
           strokeLinejoin="round"
           d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+        />
+      </svg>
+    ),
+  },
+  {
+    id: "image-pdf" as ToolId,
+    title: "Gambar ↔ PDF",
+    desc: "Gabungkan gambar menjadi PDF, atau ubah halaman PDF jadi gambar.",
+    icon: (
+      <svg
+        className="w-10 h-10 text-indigo-500 mb-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.5}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 16l4-4 3 3 4-5 5 6M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"
         />
       </svg>
     ),
@@ -276,6 +298,7 @@ function App() {
               {activeTool === "pdf-compress" && <PdfCompressor />}
               {activeTool === "pdf-watermark" && <PdfWatermark />}
               {activeTool === "doc-convert" && <DocConverter />}
+              {activeTool === "image-pdf" && <ImagePdfConverter />}
               {activeTool === "image-resize" && <ImageResizer />}
             </div>
           </div>

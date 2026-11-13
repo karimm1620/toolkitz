@@ -33,7 +33,7 @@ func Execute() {
 		
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(banner)
-			fmt.Println("\033[90mCross-Platform Document & Image Processing CLI\033[0m\n")
+			fmt.Print("\033[90mCross-Platform Document & Image Processing CLI\033[0m\n\n")
 			
 			fmt.Println("Available Commands (Top 5):")
 			fmt.Println("  merge       Gabungkan beberapa PDF menjadi satu")
@@ -51,6 +51,9 @@ func Execute() {
 
 	// 2. Registrasi Command Konversi
 	AddConvertCommands(rootCmd)
+
+	// 2b. Registrasi Command Gambar <-> PDF
+	AddImagePDFCommands(rootCmd)
 
 	// 3. Command Gambar (Resize)
 	imgSvc := services.NewImageService()

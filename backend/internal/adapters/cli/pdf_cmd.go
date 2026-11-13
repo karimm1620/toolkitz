@@ -161,19 +161,22 @@ func AddPDFCommands(rootCmd *cobra.Command) {
 	// 4. COMMAND: OPTIMALISASI / KOMPRESI
 	// ==========================================
 
+	var compressLevel string
+
 	var compressCmd = &cobra.Command{
 		Use:   "compress [input.pdf] [output.pdf]",
 		Short: "Mengompresi dan mengoptimalkan ukuran file PDF",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println("⌛︎ Mengompresi PDF...")
-			if err := pdfSvc.Compress(args[0], args[1]); err != nil {
+			if err := pdfSvc.CompressWithLevel(args[0], args[1], compressLevel); err != nil {
 				return err
 			}
 			fmt.Println("✔ PDF berhasil dikompresi!")
 			return nil
 		},
 	}
+	compressCmd.Flags().StringVarP(&compressLevel, "level", "l", "medium", "Tingkat kompresi: low, medium, high (butuh Ghostscript untuk hasil maksimal)")
 
 	// ==========================================
 	// 5. WATERMARK
