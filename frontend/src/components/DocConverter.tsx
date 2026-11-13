@@ -1,12 +1,27 @@
 import { useState } from "react";
 import { convertDocument } from "../services/api";
+import { downloadBlob } from "../services/download";
+
+type ConvertType = "word-to-pdf" | "pdf-to-word" | "excel-to-pdf" | "ppt-to-pdf";
+
+const OPTIONS: {
+  id: ConvertType;
+  label: string;
+  accept: string;
+  outExt: string;
+}[] = [
+  { id: "word-to-pdf", label: "Word ke PDF", accept: ".docx,.doc", outExt: ".pdf" },
+  { id: "pdf-to-word", label: "PDF ke Word", accept: ".pdf", outExt: ".docx" },
+  { id: "excel-to-pdf", label: "Excel ke PDF", accept: ".xlsx", outExt: ".pdf" },
+  { id: "ppt-to-pdf", label: "PowerPoint ke PDF", accept: ".pptx", outExt: ".pdf" },
+];
 
 export default function DocConverter() {
   const [file, setFile] = useState<File | null>(null);
-  const [type, setType] = useState<"word-to-pdf" | "pdf-to-word">(
-    "word-to-pdf",
-  );
+  const [type, setType] = useState<ConvertType>("word-to-pdf");
   const [loading, setLoading] = useState(false);
+
+  const current = OPTIONS.find((o) => o.id === type) ?? OPTIONS[0];
 
   const handleProcess = async () => {
     if (!file) return alert("Pilih file terlebih dahulu");
@@ -14,17 +29,8 @@ export default function DocConverter() {
     setLoading(true);
     try {
       const blob = await convertDocument(file, type);
-      const ext = type === "word-to-pdf" ? ".pdf" : ".docx";
-
-      const newFileName = file.name.replace(/\.[^/.]+$/, "") + ext;
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = newFileName;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
+      const newFileName = file.name.replace(/\.[^/.]+$/, "") + current.outExt;
+      downloadBlob(blob, newFileName);
     } catch (error) {
       alert(
         error instanceof Error
@@ -42,30 +48,25 @@ export default function DocConverter() {
         Konversi Dokumen
       </h2>
 
-      <div className="flex gap-4 mb-6">
-        <button
-          onClick={() => {
-            setType("word-to-pdf");
-            setFile(null);
-          }}
-          className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${type === "word-to-pdf" ? "border-blue-600 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}
-        >
-          Word ke PDF
-        </button>
-        <button
-          onClick={() => {
-            setType("pdf-to-word");
-            setFile(null);
-          }}
-          className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${type === "pdf-to-word" ? "border-blue-600 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}
-        >
-          PDF ke Word
-        </button>
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        {OPTIONS.map((o) => (
+          <button
+            key={o.id}
+            onClick={() => {
+              setType(o.id);
+              setFile(null);
+            }}
+            className={`py-2 rounded-lg text-sm font-medium border transition-colors ${type === o.id ? "border-blue-600 bg-blue-50 text-blue-700" : "border-gray-200 text-gray-600 hover:bg-gray-50"}`}
+          >
+            {o.label}
+          </button>
+        ))}
       </div>
 
       <input
+        key={type}
         type="file"
-        accept={type === "word-to-pdf" ? ".docx,.doc" : ".pdf"}
+        accept={current.accept}
         onChange={(e) => setFile(e.target.files?.[0] || null)}
         className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-6"
       />

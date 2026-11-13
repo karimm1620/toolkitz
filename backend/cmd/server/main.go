@@ -54,6 +54,14 @@ func main() {
 	// Endpoint Konversi Dokumen
 	api.Post("/convert/word-to-pdf", convHandler.WordToPDF)
 	api.Post("/convert/pdf-to-word", convHandler.PDFToWord)
+	api.Post("/convert/excel-to-pdf", convHandler.ExcelToPDF)
+	api.Post("/convert/ppt-to-pdf", convHandler.PPTToPDF)
+
+	// Endpoint Gambar <-> PDF
+	imgPdfSvc := services.NewPDFImageService()
+	imgPdfHandler := rest.NewPDFImageHandler(imgPdfSvc)
+	api.Post("/pdf/from-images", imgPdfHandler.ImagesToPDF)
+	api.Post("/pdf/to-images", imgPdfHandler.PDFToImages)
 
 	// Endpoint Encrypt Dokumen
 	api.Post("/pdf/encrypt", pdfHandler.Encrypt)

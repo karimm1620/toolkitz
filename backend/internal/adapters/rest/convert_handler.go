@@ -52,6 +52,14 @@ func (h *ConvertHandler) WordToPDF(c *fiber.Ctx) error {
 	return h.handleConversion(c, ".docx", ".pdf", h.svc.WordToPDF)
 }
 
+func (h *ConvertHandler) ExcelToPDF(c *fiber.Ctx) error {
+	return h.handleConversion(c, ".xlsx", ".pdf", h.svc.OfficeToPDF)
+}
+
+func (h *ConvertHandler) PPTToPDF(c *fiber.Ctx) error {
+	return h.handleConversion(c, ".pptx", ".pdf", h.svc.OfficeToPDF)
+}
+
 func (h *ConvertHandler) PDFToWord(c *fiber.Ctx) error {
 	return h.handleConversion(c, ".pdf", ".docx", h.svc.PDFToWord)
 }
