@@ -39,6 +39,11 @@ Cara termudah untuk menjalankan Toolkitz adalah dengan Docker Compose.
 3. Buka browser dan akses http://localhost untuk Web UI.
 (Backend API akan berjalan di http://localhost:3000).
 
+> **Tidak perlu mengubah IP di `docker-compose.yml`.** Web UI memanggil `/api` di alamat yang sama,
+> lalu nginx meneruskannya ke container backend. Dari device lain di jaringan yang sama cukup buka
+> `http://IP-LAPTOP-KAMU` (port 80). Kalau gagal terhubung, cek log: `docker compose logs backend`
+> dan `docker compose ps` (backend harus berstatus `healthy`).
+
 ---
 
 # Penggunaan CLI (Command Line Interface)

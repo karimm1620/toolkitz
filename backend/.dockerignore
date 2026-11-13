@@ -1,0 +1,10 @@
+.git
+*.log
+.vscode
+.idea
+.DS_Store
+# binary hasil build lokal (Windows/macOS) jangan ikut ke context
+pdf-tool
+pdf-tool.exe
+server
+server.exe
