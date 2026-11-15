@@ -1,11 +1,13 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"toolkitz/backend/internal/core/ports"
 )
@@ -28,17 +30,23 @@ func runSoffice(outputDir string, args ...string) error {
 		return fmt.Errorf("path output tidak valid: %w", err)
 	}
 
+	// Batas waktu supaya konversi yang hang tidak menahan request selamanya
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+
 	profile := "-env:UserInstallation=file://" + filepath.ToSlash(filepath.Join(absDir, ".lo-profile"))
 	fullArgs := append([]string{profile, "--headless"}, args...)
 
-	out, err := exec.Command("soffice", fullArgs...).CombinedOutput()
+	out, err := exec.CommandContext(ctx, "soffice", fullArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("soffice gagal: %w: %s", err, strings.TrimSpace(string(out)))
 	}
 	return nil
 }
 
-func (s *converterService) WordToPDF(inputPath, outputDir string) (string, error) {
+// OfficeToPDF mengonversi dokumen Office apa pun yang dikenali LibreOffice
+// (Word, Excel, PowerPoint) ke PDF. Format dikenali dari ekstensi file input.
+func (s *converterService) OfficeToPDF(inputPath, outputDir string) (string, error) {
 	// eksekusi: soffice --headless --convert-to pdf --outdir [dir] [file]
 	if err := runSoffice(outputDir, "--convert-to", "pdf", "--outdir", outputDir, inputPath); err != nil {
 		return "", fmt.Errorf("gagal konversi ke PDF. Pastikan LibreOffice terinstall: %w", err)
@@ -51,6 +59,10 @@ func (s *converterService) WordToPDF(inputPath, outputDir string) (string, error
 		return "", fmt.Errorf("konversi selesai tetapi file hasil tidak ditemukan: %w", err)
 	}
 	return outputPath, nil
+}
+
+func (s *converterService) WordToPDF(inputPath, outputDir string) (string, error) {
+	return s.OfficeToPDF(inputPath, outputDir)
 }
 
 func (s *converterService) PDFToWord(inputPath, outputDir string) (string, error) {

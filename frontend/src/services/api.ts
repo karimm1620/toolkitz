@@ -69,7 +69,7 @@ export const processImage = async (
 
 export const convertDocument = async (
   file: File,
-  type: "word-to-pdf" | "pdf-to-word",
+  type: "word-to-pdf" | "pdf-to-word" | "excel-to-pdf" | "ppt-to-pdf",
 ): Promise<Blob> => {
   const formData = new FormData();
   formData.append("document", file);
@@ -133,16 +133,67 @@ export const manipulatePdfPages = async (
   return await response.blob();
 };
 
-export const compressPdf = async (file: File): Promise<Blob> => {
+export type CompressLevel = "low" | "medium" | "high";
+
+export const compressPdf = async (
+  file: File,
+  level: CompressLevel = "medium",
+): Promise<Blob> => {
   const formData = new FormData();
   formData.append("pdf", file);
+  formData.append("level", level);
 
   const response = await fetch(`${API_URL}/pdf/compress`, {
     method: "POST",
     body: formData,
   });
 
-  if (!response.ok) throw new Error("Gagal mengompresi PDF");
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.error || "Gagal mengompresi PDF");
+  }
+  return await response.blob();
+};
+
+export const imagesToPdf = async (
+  files: File[],
+  page: "a4" | "original" = "a4",
+): Promise<Blob> => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("images", file));
+  formData.append("page", page);
+
+  const response = await fetch(`${API_URL}/pdf/from-images`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.error || "Gagal membuat PDF dari gambar");
+  }
+  return await response.blob();
+};
+
+export const pdfToImages = async (
+  file: File,
+  format: "png" | "jpeg" = "png",
+  dpi: number = 150,
+): Promise<Blob> => {
+  const formData = new FormData();
+  formData.append("pdf", file);
+  formData.append("format", format);
+  formData.append("dpi", dpi.toString());
+
+  const response = await fetch(`${API_URL}/pdf/to-images`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.error || "Gagal mengubah PDF menjadi gambar");
+  }
   return await response.blob();
 };
 
