@@ -8,6 +8,9 @@ import PdfWatermark from "./components/PdfWatermark";
 import DocConverter from "./components/DocConverter";
 import ImageResizer from "./components/ImageResizer";
 import ImagePdfConverter from "./components/ImagePdfConverter";
+import PdfOcr from "./components/PdfOcr";
+import PdfSign from "./components/PdfSign";
+import PdfOrganizer from "./components/PdfOrganizer";
 
 type ToolId =
   | "home"
@@ -19,6 +22,9 @@ type ToolId =
   | "pdf-watermark"
   | "doc-convert"
   | "image-pdf"
+  | "pdf-ocr"
+  | "pdf-sign"
+  | "pdf-organize"
   | "image-resize";
 
 // Data konfigurasi untuk Grid Beranda
@@ -166,7 +172,7 @@ const TOOLS = [
   {
     id: "image-pdf" as ToolId,
     title: "Gambar ↔ PDF",
-    desc: "Gabungkan gambar menjadi PDF, atau ubah halaman PDF jadi gambar.",
+    desc: "Gambar ke PDF, PDF ke gambar, dan HEIC (foto iPhone) ke JPG.",
     icon: (
       <svg
         className="w-10 h-10 text-indigo-500 mb-4"
@@ -179,6 +185,66 @@ const TOOLS = [
           strokeLinecap="round"
           strokeLinejoin="round"
           d="M4 16l4-4 3 3 4-5 5 6M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"
+        />
+      </svg>
+    ),
+  },
+  {
+    id: "pdf-organize" as ToolId,
+    title: "Susun Halaman",
+    desc: "Seret untuk mengurutkan, putar, gandakan, atau hapus halaman PDF dengan pratinjau.",
+    icon: (
+      <svg
+        className="w-10 h-10 text-cyan-500 mb-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.5}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+        />
+      </svg>
+    ),
+  },
+  {
+    id: "pdf-sign" as ToolId,
+    title: "Tanda Tangan PDF",
+    desc: "Tempelkan gambar tanda tangan atau stempel ke halaman PDF pilihan Anda.",
+    icon: (
+      <svg
+        className="w-10 h-10 text-amber-500 mb-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.5}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+        />
+      </svg>
+    ),
+  },
+  {
+    id: "pdf-ocr" as ToolId,
+    title: "OCR PDF",
+    desc: "Ubah PDF hasil scan menjadi teks yang bisa dicari dan disalin.",
+    icon: (
+      <svg
+        className="w-10 h-10 text-lime-600 mb-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={1.5}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
         />
       </svg>
     ),
@@ -299,6 +365,9 @@ function App() {
               {activeTool === "pdf-watermark" && <PdfWatermark />}
               {activeTool === "doc-convert" && <DocConverter />}
               {activeTool === "image-pdf" && <ImagePdfConverter />}
+              {activeTool === "pdf-organize" && <PdfOrganizer />}
+              {activeTool === "pdf-sign" && <PdfSign />}
+              {activeTool === "pdf-ocr" && <PdfOcr />}
               {activeTool === "image-resize" && <ImageResizer />}
             </div>
           </div>

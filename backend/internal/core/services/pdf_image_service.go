@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -212,4 +213,54 @@ func (s *pdfImageService) PDFToImages(inputPath, outputDir, format string, dpi i
 		return errors.New("tidak ada gambar yang dihasilkan dari PDF")
 	}
 	return nil
+}
+
+// HEICToJPEG mengonversi HEIC/HEIF ke JPEG. Decoder dicoba berurutan sampai ada yang berhasil:
+// heif-dec / heif-convert (libheif-tools), lalu ImageMagick (magick / convert).
+func (s *pdfImageService) HEICToJPEG(inputPath, outputPath string, quality int) error {
+	if quality < 1 || quality > 100 {
+		quality = 90
+	}
+	q := strconv.Itoa(quality)
+
+	type attempt struct {
+		bin  string
+		args []string
+	}
+	attempts := []attempt{
+		{"heif-dec", []string{"-q", q, inputPath, outputPath}},
+		{"heif-convert", []string{"-q", q, inputPath, outputPath}},
+		{"magick", []string{inputPath, "-auto-orient", "-quality", q, outputPath}},
+		{"convert", []string{inputPath, "-auto-orient", "-quality", q, outputPath}},
+	}
+
+	tried := false
+	var lastErr error
+	for _, a := range attempts {
+		if _, err := exec.LookPath(a.bin); err != nil {
+			continue
+		}
+		tried = true
+
+		if err := runTool(2*time.Minute, nil, a.bin, a.args...); err != nil {
+			lastErr = err
+			continue
+		}
+		if _, err := os.Stat(outputPath); err == nil {
+			return nil
+		}
+
+		// File HEIC berisi beberapa gambar -> decoder menulis out-1.jpg, out-2.jpg, ...
+		base := strings.TrimSuffix(outputPath, filepath.Ext(outputPath))
+		if matches, _ := filepath.Glob(base + "-*.jpg"); len(matches) > 0 {
+			sort.Strings(matches)
+			return os.Rename(matches[0], outputPath)
+		}
+		lastErr = fmt.Errorf("%s selesai tetapi file hasil tidak ditemukan", a.bin)
+	}
+
+	if !tried {
+		return errors.New("tidak ada decoder HEIC di server (butuh libheif-tools atau ImageMagick dengan dukungan HEIC)")
+	}
+	return fmt.Errorf("gagal mengonversi HEIC: %w", lastErr)
 }

@@ -21,11 +21,19 @@ FROM alpine:latest
 # libreoffice-calc/impress: Excel & PowerPoint -> PDF
 # ghostscript  : compress PDF sungguhan (gs); tanpa ini dipakai cadangan pdfcpu
 # poppler-utils: pdftoppm untuk PDF -> gambar
+# qpdf         : susun halaman, tanda tangan (overlay)
+# tesseract-*  : OCR (bahasa Inggris & Indonesia; tambah tesseract-ocr-data-<kode> untuk bahasa lain)
+# libheif-tools: HEIC -> JPG (foto iPhone)
 # font-*       : tanpa font, teks hasil konversi jadi kotak/hilang.
 RUN apk add --no-cache \
     libwebp \
     ghostscript \
     poppler-utils \
+    qpdf \
+    tesseract-ocr \
+    tesseract-ocr-data-eng \
+    tesseract-ocr-data-ind \
+    libheif-tools \
     libreoffice-common \
     libreoffice-writer \
     libreoffice-calc \

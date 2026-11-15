@@ -62,6 +62,15 @@ func main() {
 	imgPdfHandler := rest.NewPDFImageHandler(imgPdfSvc)
 	api.Post("/pdf/from-images", imgPdfHandler.ImagesToPDF)
 	api.Post("/pdf/to-images", imgPdfHandler.PDFToImages)
+	api.Post("/convert/heic-to-jpg", imgPdfHandler.HEICToJPEG)
+
+	// Endpoint Edit PDF lanjutan: OCR, tanda tangan, susun halaman
+	editSvc := services.NewPDFEditService()
+	editHandler := rest.NewPDFEditHandler(editSvc)
+	api.Post("/pdf/ocr", editHandler.OCR)
+	api.Post("/pdf/sign", editHandler.Sign)
+	api.Post("/pdf/thumbnails", editHandler.Thumbnails)
+	api.Post("/pdf/reorder", editHandler.Reorder)
 
 	// Endpoint Encrypt Dokumen
 	api.Post("/pdf/encrypt", pdfHandler.Encrypt)

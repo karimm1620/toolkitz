@@ -218,3 +218,113 @@ export const addPdfWatermark = async (
   }
   return await response.blob();
 };
+
+// ---------- OCR, Tanda Tangan, Susun Halaman, HEIC ----------
+
+const readError = async (response: Response, fallback: string) => {
+  const err = await response.json().catch(() => null);
+  return err?.error || fallback;
+};
+
+export const ocrPdf = async (
+  file: File,
+  lang: string,
+  output: "pdf" | "txt",
+): Promise<Blob> => {
+  const formData = new FormData();
+  formData.append("pdf", file);
+  formData.append("lang", lang);
+  formData.append("output", output);
+
+  const response = await fetch(`${API_URL}/pdf/ocr`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) throw new Error(await readError(response, "Gagal menjalankan OCR"));
+  return await response.blob();
+};
+
+export type SignPosition =
+  | "tl" | "tc" | "tr"
+  | "ml" | "mc" | "mr"
+  | "bl" | "bc" | "br";
+
+export interface SignOptions {
+  pages: string; // "first" | "last" | "all" | "1,3,5-7"
+  position: SignPosition;
+  width: number; // % lebar halaman
+  removeWhite: boolean;
+}
+
+export const signPdf = async (
+  pdf: File,
+  signature: File,
+  opts: SignOptions,
+): Promise<Blob> => {
+  const formData = new FormData();
+  formData.append("pdf", pdf);
+  formData.append("signature", signature);
+  formData.append("pages", opts.pages);
+  formData.append("position", opts.position);
+  formData.append("width", opts.width.toString());
+  formData.append("remove_white", opts.removeWhite ? "true" : "false");
+
+  const response = await fetch(`${API_URL}/pdf/sign`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) throw new Error(await readError(response, "Gagal menambahkan tanda tangan"));
+  return await response.blob();
+};
+
+export const getPdfThumbnails = async (
+  file: File,
+): Promise<{ total: number; thumbnails: string[] }> => {
+  const formData = new FormData();
+  formData.append("pdf", file);
+
+  const response = await fetch(`${API_URL}/pdf/thumbnails`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) throw new Error(await readError(response, "Gagal memuat halaman PDF"));
+  return await response.json();
+};
+
+export interface PageSpec {
+  page: number; // nomor halaman asli (mulai 1)
+  rotate: number; // 0 | 90 | 180 | 270
+}
+
+export const reorderPdf = async (
+  file: File,
+  order: PageSpec[],
+): Promise<Blob> => {
+  const formData = new FormData();
+  formData.append("pdf", file);
+  formData.append("order", JSON.stringify(order));
+
+  const response = await fetch(`${API_URL}/pdf/reorder`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) throw new Error(await readError(response, "Gagal menyimpan susunan halaman"));
+  return await response.blob();
+};
+
+// Satu file -> JPG, banyak file -> ZIP. Jenis hasil dibaca dari blob.type.
+export const heicToJpg = async (
+  files: File[],
+  quality: number = 90,
+): Promise<Blob> => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("images", file));
+  formData.append("quality", quality.toString());
+
+  const response = await fetch(`${API_URL}/convert/heic-to-jpg`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) throw new Error(await readError(response, "Gagal mengonversi HEIC"));
+  return await response.blob();
+};
