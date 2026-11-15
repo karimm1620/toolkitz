@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { imagesToPdf, pdfToImages } from "../services/api";
+import { heicToJpg, imagesToPdf, pdfToImages } from "../services/api";
 import { downloadBlob } from "../services/download";
 
-type Mode = "images-to-pdf" | "pdf-to-images";
+type Mode = "images-to-pdf" | "pdf-to-images" | "heic-to-jpg";
 
 const MAX_IMAGES = 100;
 
@@ -18,6 +18,10 @@ export default function ImagePdfConverter() {
   const [pdf, setPdf] = useState<File | null>(null);
   const [format, setFormat] = useState<"png" | "jpeg">("png");
   const [dpi, setDpi] = useState(150);
+
+  // HEIC -> JPG
+  const [heicFiles, setHeicFiles] = useState<File[]>([]);
+  const [quality, setQuality] = useState(90);
 
   const addImages = (list: FileList | null) => {
     if (!list) return;
@@ -44,10 +48,18 @@ export default function ImagePdfConverter() {
         if (images.length === 0) return alert("Pilih minimal 1 gambar");
         const blob = await imagesToPdf(images, page);
         downloadBlob(blob, "images.pdf");
-      } else {
+      } else if (mode === "pdf-to-images") {
         if (!pdf) return alert("Pilih file PDF terlebih dahulu");
         const blob = await pdfToImages(pdf, format, dpi);
         downloadBlob(blob, pdf.name.replace(/\.[^/.]+$/, "") + "_images.zip");
+      } else {
+        if (heicFiles.length === 0) return alert("Pilih minimal 1 file HEIC");
+        const blob = await heicToJpg(heicFiles, quality);
+        // Satu file -> JPG, banyak file -> ZIP (server menentukan jenisnya)
+        const name = blob.type.includes("zip")
+          ? "heic_to_jpg.zip"
+          : heicFiles[0].name.replace(/\.[^/.]+$/, "") + ".jpg";
+        downloadBlob(blob, name);
       }
     } catch (error) {
       alert(
@@ -81,6 +93,12 @@ export default function ImagePdfConverter() {
           className={toggle(mode === "pdf-to-images")}
         >
           PDF ke Gambar
+        </button>
+        <button
+          onClick={() => setMode("heic-to-jpg")}
+          className={toggle(mode === "heic-to-jpg")}
+        >
+          HEIC ke JPG
         </button>
       </div>
 
@@ -154,7 +172,7 @@ export default function ImagePdfConverter() {
             </button>
           </div>
         </>
-      ) : (
+      ) : mode === "pdf-to-images" ? (
         <>
           <p className="text-gray-500 mb-4 text-sm">
             Ubah tiap halaman PDF menjadi gambar. Hasilnya diunduh dalam satu
@@ -207,12 +225,55 @@ export default function ImagePdfConverter() {
             </span>
           </label>
         </>
+      ) : (
+        <>
+          <p className="text-gray-500 mb-4 text-sm">
+            Ubah foto HEIC/HEIF (format foto iPhone) menjadi JPG supaya bisa
+            dibuka di mana saja. Satu file langsung diunduh sebagai JPG, banyak
+            file diunduh dalam satu ZIP. Maksimal 50 file.
+          </p>
+
+          <input
+            type="file"
+            accept=".heic,.heif,image/heic,image/heif"
+            multiple
+            onChange={(e) =>
+              setHeicFiles(Array.from(e.target.files ?? []).slice(0, 50))
+            }
+            className={fileInputClass}
+          />
+
+          {heicFiles.length > 0 && (
+            <div className="mb-6 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200">
+              <strong>{heicFiles.length} file terpilih</strong>
+              <div className="truncate">{heicFiles.map((f) => f.name).join(", ")}</div>
+            </div>
+          )}
+
+          <label className="block text-sm text-gray-600 mb-6">
+            Kualitas JPG: <strong>{quality}</strong>
+            <input
+              type="range"
+              min={50}
+              max={100}
+              step={5}
+              value={quality}
+              onChange={(e) => setQuality(Number(e.target.value))}
+              className="w-full mt-2"
+            />
+          </label>
+        </>
       )}
 
       <button
         onClick={handleProcess}
         disabled={
-          loading || (mode === "images-to-pdf" ? images.length === 0 : !pdf)
+          loading ||
+          (mode === "images-to-pdf"
+            ? images.length === 0
+            : mode === "pdf-to-images"
+              ? !pdf
+              : heicFiles.length === 0)
         }
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg disabled:opacity-50 transition-colors"
       >
@@ -220,7 +281,9 @@ export default function ImagePdfConverter() {
           ? "Memproses..."
           : mode === "images-to-pdf"
             ? "Buat PDF"
-            : "Ubah ke Gambar"}
+            : mode === "pdf-to-images"
+              ? "Ubah ke Gambar"
+              : "Konversi ke JPG"}
       </button>
     </div>
   );

@@ -9,14 +9,19 @@ Toolkitz adalah platform pemrosesan dokumen dan gambar lintas platform (Cross-Pl
 *   **Split:** Memisahkan setiap halaman PDF ke dalam file berbeda (Output ZIP).
 *   **Pages:** Mengekstrak, menghapus, atau memutar halaman spesifik (misal: 1, 3, 5-10).
 *   **Security:** Kunci PDF dengan enkripsi AES-256 (Encrypt) atau hapus proteksinya (Decrypt).
-*   **Compress:** Optimalisasi struktur internal PDF tanpa mengurangi kualitas visual.
+*   **Compress:** Kompresi dengan Ghostscript (ringan/seimbang/maksimal); cadangan optimasi struktur bila Ghostscript tidak tersedia.
 *   **Watermark & Page Numbers:** Stempel teks diagonal atau nomor halaman otomatis.
+*   **Susun Halaman:** Pratinjau thumbnail, seret untuk mengurutkan, putar, gandakan, atau hapus halaman.
+*   **Tanda Tangan:** Tempel gambar tanda tangan/stempel (latar putih bisa dibuat transparan) ke halaman pilihan.
+*   **OCR:** PDF hasil scan menjadi PDF yang bisa dicari atau teks biasa (Indonesia & Inggris; maks. 100 halaman).
 
 ### 🖼️ Image Processor & Doc Converter
 *   **Resize & Crop:** Pemotongan tengah presisi dan pengubahan resolusi gambar.
 *   **Format & Kompresi:** Dukungan kompresi ke JPEG, PNG, dan WEBP dengan slider kualitas (1-100%).
 *   **Flip & Rotate:** Cerminkan gambar atau putar (90, 180, 270 derajat).
-*   **Doc Converter:** Konversi cepat dari format dokumen lama ke PDF.
+*   **Doc Converter:** Word, Excel, dan PowerPoint ke PDF, serta PDF ke Word (via LibreOffice).
+*   **Gambar ↔ PDF:** Gabungkan gambar menjadi PDF, atau ubah tiap halaman PDF menjadi PNG/JPG.
+*   **HEIC ke JPG:** Konversi foto iPhone (HEIC/HEIF) ke JPG, satu atau banyak file sekaligus.
 
 ## Tech Stack
 

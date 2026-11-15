@@ -8,4 +8,8 @@ type PDFImageService interface {
 	// PDFToImages merender tiap halaman PDF menjadi gambar di outputDir.
 	// format: "png" (default) atau "jpeg". dpi: 72-300 (default 150).
 	PDFToImages(inputPath, outputDir, format string, dpi int) error
+
+	// HEICToJPEG mengonversi foto HEIC/HEIF (iPhone) ke JPEG. quality: 1-100 (default 90).
+	// Memakai heif-dec/heif-convert (libheif-tools) atau ImageMagick, mana yang tersedia.
+	HEICToJPEG(inputPath, outputPath string, quality int) error
 }
